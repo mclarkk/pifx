@@ -56,7 +56,10 @@ def parse_response(response, debug=False):
         print("response:", response)
         print("response text:", response.text)
     if response.text is not "":
-        parsed_response = json.loads(response.text)
+        try:
+            parsed_response = json.loads(response.text)
+        except Exception as e:
+            pass
     return parsed_response
 
 def handle_error(response):
