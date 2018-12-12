@@ -20,8 +20,9 @@ from pifx.client import LIFXWebAPIClient
 
 class PIFX:
     """Main PIFX class"""
-    def __init__(self, api_key, http_endpoint=None):
-        self.client = LIFXWebAPIClient(api_key, http_endpoint)
+    def __init__(self, api_key, http_endpoint=None, debug=False):
+        self.client = LIFXWebAPIClient(api_key, http_endpoint, debug)
+        self.debug = debug
 
     def list_lights(self, selector='all'):
         """Given a selector (defaults to all), return a list of lights.
@@ -33,7 +34,7 @@ class PIFX:
             endpoint_args=[selector], parse_data=False)
 
     def set_state(self, selector='all',
-        power=None, color=None, brightness=None, duration=None):
+        power=None, color=None, brightness=None, duration=None, fast=False):
         """Given a selector (defaults to all), set the state of a light.
         Selector can be based on id, scene_id, group_id, label, etc.
         Returns list of lightbulb statuses if successful.
@@ -65,12 +66,18 @@ class PIFX:
             ('power', power),
             ('color', color),
             ('brightness', brightness),
-            ('duration', duration)
+            ('duration', duration),
+            ('fast', fast)
         ]
 
-        return self.client.perform_request(
+        success_response = self.client.perform_request(
             method='put', endpoint='lights/{}/state',
             endpoint_args=[selector], argument_tuples=argument_tuples)
+
+        if success_response == None and fast == True:
+            success_response = True
+
+        return success_response
 
     def state_delta(self, selector='all',
         power=None, duration=1.0, infrared=None, hue=None,
@@ -273,7 +280,7 @@ class PIFX:
         return self.client.perform_request(
             method='get', endpoint='scenes', parse_data=False)
 
-    def activate_scene(self, scene_uuid, duration=1.0):
+    def activate_scene(self, scene_uuid, duration=1.0, fast=False):
         """Activate a scene.
 
         See http://api.developer.lifx.com/docs/activate-scene
@@ -288,8 +295,14 @@ class PIFX:
 
         argument_tuples = [
             ("duration", duration),
+            ("fast", fast)
         ]
 
-        return self.client.perform_request(
+        success_response = self.client.perform_request(
             method='put', endpoint='scenes/scene_id:{}/activate',
             endpoint_args=[scene_uuid], argument_tuples=argument_tuples)
+
+        if success_response == None and fast == True:
+            success_response = True
+
+        return success_response

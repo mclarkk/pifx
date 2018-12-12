@@ -33,22 +33,30 @@ def arg_tup_to_dict(argument_tuples):
     """Given a set of argument tuples, set their value in a data dictionary if not blank"""
     data = dict()
     for arg_name, arg_val in argument_tuples:
-        if arg_val != None:
-            if arg_val == True:
-                arg_val = "true"
-            elif arg_val == False:
-                arg_val = "false"
+        if arg_val is not None:
+            if arg_val is True:
+                arg_val = 'true'
+            elif arg_val is False:
+                arg_val = 'false'
             data[arg_name] = arg_val
 
     return data
 
 def parse_data(parsed_data):
     """Given parsed response, return correct return values"""
-    return parsed_data['results']
+    result = None
+    if parsed_data is not None:
+        result = parsed_data['results']
+    return result
 
-def parse_response(response):
+def parse_response(response, debug=False):
     """Parse JSON API response, return object."""
-    parsed_response = json.loads(response.text)
+    parsed_response = None
+    if debug:
+        print("response:", response)
+        print("response text:", response.text)
+    if response.text is not "":
+        parsed_response = json.loads(response.text)
     return parsed_response
 
 def handle_error(response):
